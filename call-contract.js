@@ -59,15 +59,17 @@ const contractAddress = readFileSync(contractAddressFile)
     // call getter
     const getter    = contractInstance.data()
     const getterRes = await getter.call()
-    console.log("Getter: ", hexToUtf8(getterRes))
+    console.log("Getter (hex): ", getterRes)
+    if (getterRes != "0x") {
+      console.log("Getter: ", hexToUtf8(getterRes))
+    }
 
     // setter
     const rand = Math.round(Math.random()*999)
     const value = utf8ToHex(`foo-${rand}`)
     const setterCall  = contractInstance.set(value)
     const setterAbi   = setterCall.encodeABI()
-    let setterGas = await contractInstance.data().estimateGas()
-    setterGas = Math.max(265056, setterGas)
+    let setterGas = await setterCall.estimateGas()
     console.log("gas:", setterGas)
 
     const setterData = {
