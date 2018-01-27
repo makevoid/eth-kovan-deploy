@@ -13,19 +13,12 @@ const privateKey = readFileSync(keyFile)
 const account = eth.accounts.privateKeyToAccount(privateKey)
 const address = account.address
 
-console.log(`Loading ETH account: ${address}`)
-
-const abi = require("./contract.abi.json")
-let   bin = require("./contract.bin.json")
-bin = bin["object"]
-
 const broadcastTransaction = async (rawTx) => {
   const broadcastUrl = "https://kovan.etherscan.io/api"
   const data = new FormData()
   data.append('module', 'proxy')
   data.append('action', 'eth_sendRawTransaction')
   data.append('hex', rawTx)
-  data.append('apikey', '3DQFQQZ51G4M18SW8RDKHIMERD79GYTVEA') // please use your own api key
   let resp = await fetch(broadcastUrl, {
     method: "post",
     body: data,
@@ -33,6 +26,21 @@ const broadcastTransaction = async (rawTx) => {
   resp = await resp.json()
   return resp
 }
+
+const getContractAddressFromTx = async (txHash) => {
+  const getTxDataUrl = `https://kovan.etherscan.io/api?module=proxy&action=eth_getTransactionByHash&txhash=${txHash}`
+  let resp = await fetch(getTxDataUrl)
+  resp = await resp.json()
+  resp = resp["result"]
+  resp = resp["creates"]
+  return resp
+}
+
+console.log(`Loading ETH account: ${address}`)
+
+const abi = require("./contract.abi.json")
+let   bin = require("./contract.bin.json")
+bin = bin["object"]
 
 ; // leave this before async
 (async () => {
@@ -69,6 +77,9 @@ const broadcastTransaction = async (rawTx) => {
   console.log("PUSH TX:", response)
 
   if (response && response.result) {
-    writeFileSync(contractAddressFile, response.result)
+    const txHash = response.result
+    const respAddress = await getContractAddressFromTx(txHash)
+    console.log("Contract address:", respAddress)
+    writeFileSync(contractAddressFile, respAddress)
   }
 })()
