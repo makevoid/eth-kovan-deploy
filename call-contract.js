@@ -1,6 +1,6 @@
 const Web3 = require('web3')
 const fs = require('fs')
-const web3 = new Web3('https://kovan.infura.io/')
+const web3 = new Web3('https://kovan.infura.io')
 const eth = web3.eth
 const readFileSync  = fs.readFileSync
 const writeFileSync = fs.writeFileSync
