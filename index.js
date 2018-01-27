@@ -10,7 +10,7 @@ const toWei = web3.utils.toWei
 const keyFile = ".private-key.txt"
 const contractAddressFile = "contract-address.txt"
 const privateKey = readFileSync(keyFile)
-const account = eth.accounts.privateKeyToAccount(privateKey)
+const account = eth.accounts.privateKeyToAccount(privateKey.toString())
 const address = account.address
 
 const broadcastTransaction = async (rawTx) => {
